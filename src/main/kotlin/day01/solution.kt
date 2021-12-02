@@ -1,7 +1,9 @@
+package day01
+
 import java.io.File
 
 fun main() {
-    val lines = File("day1/src/main/kotlin/input.txt").readLines()
+    val lines = File("src/main/kotlin/day01/input.txt").readLines()
     println(lines
             .asSequence()
             .map(String::toInt)

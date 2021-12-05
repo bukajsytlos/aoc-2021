@@ -5,15 +5,17 @@ import java.io.File
 fun main() {
     var drawnNumbers: List<Int> = listOf()
     var bingoBoards: List<BingoBoard> = listOf()
-    val inputLines = File("src/main/kotlin/day04/input.txt").readLines()
-    drawnNumbers = inputLines.take(1).single().split(",").map { it.toInt() }
+    File("src/main/kotlin/day04/input.txt").useLines { seq ->
+        val iterator = seq.iterator()
+        drawnNumbers = List(1) { iterator.next() }.single().split(",").map { it.toInt() }
 
-    bingoBoards = inputLines.drop(1)
-        .filter { it.isNotEmpty() }
-        .chunked(5)
-        .map { BingoBoard(it.map { it.split(" ").filter { it.isNotEmpty() }.map { it.toInt() } }.toList()) }
-        .toList()
+        bingoBoards = iterator.asSequence()
+            .filter { it.isNotEmpty() }
+            .chunked(5)
+            .map { BingoBoard(it.map { it.split(" ").filter { it.isNotEmpty() }.map { it.toInt() } }.toList()) }
+            .toList()
 
+    }
     for (drawnNumber in drawnNumbers) {
         val indexOfWinningBoard = bingoBoards.indexOfFirst { it.isWinning(drawnNumber) }
         if (indexOfWinningBoard != -1) {

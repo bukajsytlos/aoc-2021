@@ -15,20 +15,20 @@ fun main() {
     val fishCountByTimer2 = fishCountByTimer.copyOf()
 
     for (day in 0..79) {
-        val dayIndex = day % REPRODUCTION_INTERVAL
-        val newFishes = fishCountByTimer[dayIndex]
-        fishCountByTimer[dayIndex] += fishCountByTimer[7]
-        fishCountByTimer[7] = fishCountByTimer[8]
-        fishCountByTimer[8] = newFishes //new fishes
+        calculateFishCount(day, fishCountByTimer)
     }
     println(fishCountByTimer.asSequence().sumOf { it })
 
     for (day in 0..255) {
-        val dayIndex = day % REPRODUCTION_INTERVAL
-        val newFishes = fishCountByTimer2[dayIndex]
-        fishCountByTimer2[dayIndex] += fishCountByTimer2[7]
-        fishCountByTimer2[7] = fishCountByTimer2[8]
-        fishCountByTimer2[8] = newFishes //new fishes
+        calculateFishCount(day, fishCountByTimer2)
     }
     println(fishCountByTimer2.asSequence().sumOf { it })
+}
+
+private fun calculateFishCount(day: Int, fishCountByTimer: Array<BigInteger>) {
+    val reproductionDay = day % REPRODUCTION_INTERVAL
+    val newFishes = fishCountByTimer[reproductionDay]
+    fishCountByTimer[reproductionDay] += fishCountByTimer[7]
+    fishCountByTimer[7] = fishCountByTimer[8]
+    fishCountByTimer[8] = newFishes
 }

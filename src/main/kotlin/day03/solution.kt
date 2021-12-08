@@ -63,7 +63,7 @@ fun filterDiagnosticReport(
         .partition { it[reportIndex] == '1' }
         .toList()
         .first {
-            evaluationPredicate.invoke(
+            evaluationPredicate(
                 it.size,
                 if (it.isNotEmpty()) it[0][reportIndex].digitToInt() else null,
                 reportData.size

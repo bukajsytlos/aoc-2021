@@ -19,4 +19,4 @@ fun main() {
 }
 
 private fun calculateFuelSpent(crabSubmarinePositions: List<Int>, position: Int, fuelFormula: (Int) -> Int): Int =
-    crabSubmarinePositions.sumOf { fuelFormula.invoke(abs(it - position)) }
+    crabSubmarinePositions.sumOf { fuelFormula(abs(it - position)) }

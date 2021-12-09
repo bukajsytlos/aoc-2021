@@ -22,7 +22,7 @@ fun main() {
             if (isLowPoint) {
                 riskLevel += currHeight + 1
                 val lowPoint = Point(row, col)
-                basins += scanBasinAroundPoint(lowPoint, heightMap, mutableSetOf(lowPoint))
+                basins += scanBasinAroundPoint(lowPoint, heightMap, mutableSetOf())
             }
         }
     }
@@ -30,36 +30,19 @@ fun main() {
     println(basins.map { it.size }.sortedDescending().take(3).reduce(Int::times))
 }
 
-fun scanBasinAroundPoint(point: Point, heightMap: Array<IntArray>, basinPoints: MutableSet<Point>): MutableSet<Point> {
+fun scanBasinAroundPoint(point: Point, heightMap: Array<IntArray>, basinPoints: MutableSet<Point>): Set<Point> {
     val heightMapSize = heightMap.size
-    if (point.row > 0) {
-        val pointToBottom = Point(point.row - 1, point.col)
-        if (!basinPoints.contains(pointToBottom) && heightMap[pointToBottom.row][pointToBottom.col] != MAX_HEIGHT) {
-            basinPoints.add(pointToBottom)
-            scanBasinAroundPoint(pointToBottom, heightMap, basinPoints)
-        }
-    }
-    if (point.row < heightMapSize - 1) {
-        val pointToTop = Point(point.row + 1, point.col)
-        if (!basinPoints.contains(pointToTop) && heightMap[pointToTop.row][pointToTop.col] != MAX_HEIGHT) {
-            basinPoints.add(pointToTop)
-            scanBasinAroundPoint(pointToTop, heightMap, basinPoints)
-        }
-    }
-    if (point.col > 0) {
-        val pointToLeft = Point(point.row, point.col - 1)
-        if (!basinPoints.contains(pointToLeft) && heightMap[pointToLeft.row][pointToLeft.col] != MAX_HEIGHT) {
-            basinPoints.add(pointToLeft)
-            scanBasinAroundPoint(pointToLeft, heightMap, basinPoints)
-        }
-    }
-    if (point.col < heightMapSize - 1) {
-        val pointToRight = Point(point.row, point.col + 1)
-        if (!basinPoints.contains(pointToRight) && heightMap[pointToRight.row][pointToRight.col] != MAX_HEIGHT) {
-            basinPoints.add(pointToRight)
-            scanBasinAroundPoint(pointToRight, heightMap, basinPoints)
-        }
-    }
+    if (
+        point.row < 0 || point.row >= heightMapSize
+        || point.col < 0 || point.col >= heightMapSize
+        || heightMap[point.row][point.col] == MAX_HEIGHT
+        || point in basinPoints
+    ) return emptySet()
+    basinPoints.add(point)
+    scanBasinAroundPoint(Point(point.row - 1, point.col), heightMap, basinPoints)
+    scanBasinAroundPoint(Point(point.row + 1, point.col), heightMap, basinPoints)
+    scanBasinAroundPoint(Point(point.row, point.col - 1), heightMap, basinPoints)
+    scanBasinAroundPoint(Point(point.row, point.col + 1), heightMap, basinPoints)
     return basinPoints
 }
 

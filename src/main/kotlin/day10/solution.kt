@@ -24,20 +24,23 @@ val autocompleteCharacterPoints = mapOf(
 
 fun main() {
     val lines = File("src/main/kotlin/day10/input.txt").readLines()
-    println(lines
-        .mapNotNull { isCorrupted(it.toCharArray()) }
-        .mapNotNull { illegalCharacterPoints[it] }
-        .sumOf { it }
-    )
-    val autoCompletionPoints = lines
+    val autoCompletesByState = lines
         .map { it.toCharArray() }
-        .filter { isCorrupted(it) == null }
-        .map { missingClosingChars(it).fold(0L) { acc, unit -> acc * 5 + autocompleteCharacterPoints[unit]!! } }
-        .sorted()
-    println(autoCompletionPoints[autoCompletionPoints.size / 2])
+        .map { autocomplete(it) }
+        .partition { it.failed() }
+
+    println(autoCompletesByState.first
+            .mapNotNull { it.illegalChar }
+            .mapNotNull { illegalCharacterPoints[it] }
+            .sumOf { it }
+        )
+    println(autoCompletesByState.second
+        .mapNotNull { it.missedChars }
+        .map { it.fold(0L) { acc, unit -> acc * 5 + (autocompleteCharacterPoints[unit] ?: 0) } }
+        .sorted().let { it[it.size / 2] })
 }
 
-fun isCorrupted(line: CharArray): Char? {
+fun autocomplete(line: CharArray): Autocomplete {
     val stack = ArrayDeque<Char>()
     for (char in line) {
         if (char in chunkPairs.keys) {
@@ -45,22 +48,14 @@ fun isCorrupted(line: CharArray): Char? {
         } else {
             stack.removeLastOrNull()?.let {
                 if (chunkPairs[it] != char) {
-                    return char
+                    return Autocomplete(illegalChar = char)
                 }
             }
         }
     }
-    return null
+    return Autocomplete(missedChars = stack.mapNotNull { chunkPairs[it] }.reversed())
 }
 
-fun missingClosingChars(line: CharArray): List<Char> {
-    val stack = ArrayDeque<Char>()
-    for (char in line) {
-        if (char in chunkPairs.keys) {
-            stack.addLast(char)
-        } else {
-            stack.removeLastOrNull()
-        }
-    }
-    return stack.map { chunkPairs[it]!! }.reversed()
+data class Autocomplete(val illegalChar: Char? = null, val missedChars: List<Char>? = null) {
+    fun failed() = illegalChar != null
 }

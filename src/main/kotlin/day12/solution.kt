@@ -16,11 +16,11 @@ fun main() {
     val startCave = cavesByName.getValue("start")
     val endCave = cavesByName.getValue("end")
     println(
-        search(startCave, endCave, emptyList()) { cave, visitedCavesPath -> cave.isLarge() || cave !in visitedCavesPath }
+        search(endCave, listOf(startCave)) { cave, visitedCavesPath -> cave.isLarge() || cave !in visitedCavesPath }
         .count()
     )
     println(
-        search(startCave, endCave, emptyList()) { cave, visitedCavesPath -> cave.isLarge() || cave !in visitedCavesPath
+        search(endCave, listOf(startCave)) { cave, visitedCavesPath -> cave.isLarge() || cave !in visitedCavesPath
                 || cave.name != "start" && visitedCavesPath.filter { !it.isLarge() }
                     .groupBy { it }
                     .mapValues { it.value.size }
@@ -29,26 +29,24 @@ fun main() {
     )
 }
 
-fun search(fromCave: Cave, toCave: Cave, visitedCavesPath: List<Cave>, visitStrategy: (Cave, List<Cave>) -> Boolean): Set<List<Cave>> {
-    if (fromCave == toCave) return mutableSetOf(visitedCavesPath + toCave)
-    val newVisitedCavesPath = visitedCavesPath + fromCave
-    return fromCave.connectsTo
-        .filter { visitStrategy(it, newVisitedCavesPath) }
-        .map { search(it, toCave, newVisitedCavesPath, visitStrategy) }
+fun search(toCave: Cave, visitedCavesPath: List<Cave>, visitStrategy: (Cave, List<Cave>) -> Boolean): Set<List<Cave>> {
+    val lastVisited = visitedCavesPath.last()
+    if (lastVisited == toCave) return mutableSetOf(visitedCavesPath)
+    return lastVisited.connectsTo
+        .filter { visitStrategy(it, visitedCavesPath) }
+        .map { search(toCave, visitedCavesPath + it, visitStrategy) }
         .flatten().toSet()
 }
 
 data class Cave(val name: String) {
     val connectsTo: MutableSet<Cave> = mutableSetOf()
-
-    fun isLarge() = name.all { it.isUpperCase() }
-
     fun addConnection(other: Cave) {
         if (other !in connectsTo) {
             connectsTo.add(other)
             other.addConnection(this)
         }
     }
+    fun isLarge() = name.all { it.isUpperCase() }
 
     override fun toString(): String {
         return name

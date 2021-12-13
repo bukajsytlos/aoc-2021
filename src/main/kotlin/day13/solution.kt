@@ -23,11 +23,7 @@ fun main() {
     }
     println(fold(points, foldCommands[0]).count())
     val codePoints = foldCommands.fold(points) { acc, foldCommand -> fold(acc, foldCommand) }
-    val maxX = codePoints.map { it.x }.maxOf { it }
-    val maxY = codePoints.map { it.y }.maxOf { it }
-    val display = Array(maxY + 1) { Array(maxX + 1) { '.' } }
-    codePoints.forEach { display[it.y][it.x] = '#' }
-    display.forEach { println(it.forEach { print(it) }) }
+    codePoints.display()
 }
 
 fun fold(points: Set<Point>, foldCommand: FoldCommand): Set<Point> = points.map { point ->
@@ -39,6 +35,15 @@ fun fold(points: Set<Point>, foldCommand: FoldCommand): Set<Point> = points.map 
         point
     }
 }.toSet()
+
+fun Set<Point>.display() {
+    (0..this.maxOf { it.y }).forEach { y ->
+        (0..this.maxOf { it.x }).forEach { x ->
+            print(if (Point(x, y) in this) "\u2588" else "\u2591")
+        }
+        println()
+    }
+}
 
 data class Point(val x: Int, val y: Int)
 data class FoldCommand(val axis: Char, val position: Int)

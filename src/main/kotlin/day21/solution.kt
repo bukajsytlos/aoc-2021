@@ -48,7 +48,7 @@ fun main() {
             )
         }
         .reduce { p1, p2 -> p1.first + p2.first to p1.second + p2.second }
-    println(if (player1WonUniverses > player2WonUniverses) player1WonUniverses else player2WonUniverses)
+    println(maxOf(player1WonUniverses, player2WonUniverses))
 }
 
 fun playRound(

@@ -24,32 +24,43 @@ fun main() {
     }
     println(losingPlayer.score * die.numberOfRolls)
 
-    val (player1WonUniverses, player2WonUniverses) = GameRound.thrownValueToNumberOfUniverses.keys
+    val thrownValueToNumberOfUniverses = mapOf<Int, Long>(
+        3 to 1,
+        4 to 3,
+        5 to 6,
+        6 to 7,
+        7 to 6,
+        8 to 3,
+        9 to 1,
+    )
+
+    val (player1WonUniverses, player2WonUniverses) = thrownValueToNumberOfUniverses.keys
         .map {
-            GameRound(
+            playRound(
                 true,
                 it,
                 4,
                 0,
                 3,
                 0,
-                1
-            ).playRound()
+                1,
+                thrownValueToNumberOfUniverses
+            )
         }
         .reduce { p1, p2 -> p1.first + p2.first to p1.second + p2.second }
     println(if (player1WonUniverses > player2WonUniverses) player1WonUniverses else player2WonUniverses)
 }
 
-data class GameRound(
-    val playsFirstPlayer: Boolean,
-    val thrownValue: Int,
-    val player1Position: Int,
-    val player1Score: Int,
-    val player2Position: Int,
-    val player2Score: Int,
-    val numberOfUniverses: Long
-) {
-    fun playRound(): Pair<Long, Long> {
+fun playRound(
+    playsFirstPlayer: Boolean,
+    thrownValue: Int,
+    player1Position: Int,
+    player1Score: Int,
+    player2Position: Int,
+    player2Score: Int,
+    numberOfUniverses: Long,
+    thrownValueToNumberOfUniverses: Map<Int, Long>
+): Pair<Long, Long> {
         val newPlayer1Position: Int
         val newPlayer1Score: Int
         val newPlayer2Position: Int
@@ -72,30 +83,18 @@ data class GameRound(
         }
         return thrownValueToNumberOfUniverses.keys
             .map {
-                GameRound(
+                playRound(
                     !playsFirstPlayer,
                     it,
                     newPlayer1Position,
                     newPlayer1Score,
                     newPlayer2Position,
                     newPlayer2Score,
-                    newNumberOfUniverses
-                ).playRound()
+                    newNumberOfUniverses,
+                    thrownValueToNumberOfUniverses
+                )
             }
             .reduce { p1, p2 -> p1.first + p2.first to p1.second + p2.second}
-    }
-
-    companion object {
-        val thrownValueToNumberOfUniverses = mapOf<Int, Long>(
-            3 to 1,
-            4 to 3,
-            5 to 6,
-            6 to 7,
-            7 to 6,
-            8 to 3,
-            9 to 1,
-        )
-    }
 }
 
 data class Player(var position: Int) {
